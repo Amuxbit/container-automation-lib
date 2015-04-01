@@ -8,6 +8,9 @@
 # version: 1.0.0
 #
 
+function debug() {
+  printf "\n ---> [$@]\n"
+}
 
 #
 # Run a list of functions (map)
@@ -17,8 +20,7 @@ function run() {
   local cmd=""
 
   for cmd in "${cmdList[@]}" ; do
-      # echo "Running $cmd"
-      echo "--> [$cmd]"
+      debug "$cmd"
       $cmd
       local rc=$?
       if [ $rc -gt 0 ]; then
@@ -51,6 +53,18 @@ function runCmd() {
 
   echo "[$cmd] exited successfully."
   return 0; 
+}
+
+#
+# My version of trap.
+#
+function catch() {
+  local rc=$?
+
+  if [ $rc -gt 0 ]; then
+    echo "Script ran into errors, see above."
+    exit $rc
+  fi;
 }
 
 #
