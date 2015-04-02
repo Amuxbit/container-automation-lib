@@ -7,11 +7,13 @@ function TestRunCmd() {
   local result=`runCmd "echo" "${list[@]}"`
 
   local expected="Joe
+[echo - Joe] exited successfully.
 Bob
+[echo - Bob] exited successfully.
 Dan
-[echo] exited successfully."
+[echo - Dan] exited successfully."
 
-  echo "--> [TestRunCmd]"
+  echo " ---> [TestRunCmd]"
   if [ "$result" != "$expected" ]; then
     echo "  fail"
     echo "    TestRunCmd failed with result: $result"
@@ -25,7 +27,9 @@ Dan
 function TestRunCmdArgs() {
   local list=("Joe" "Bob" "Dan")
   local result=`runCmd "echo -n" "${list[@]}"`
-  local expected="JoeBobDan[echo -n] exited successfully."
+  local expected="Joe[echo -n - Joe] exited successfully.
+Bob[echo -n - Bob] exited successfully.
+Dan[echo -n - Dan] exited successfully."
 
   if [ "$result" != "$expected" ]; then
     echo "  fail"

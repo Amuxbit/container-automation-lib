@@ -17,7 +17,6 @@ function debug() {
 #
 function run() {
   local cmdList=("$@")
-  local cmd=""
 
   for cmd in "${cmdList[@]}" ; do
       debug "$cmd"
@@ -26,10 +25,11 @@ function run() {
       if [ $rc -gt 0 ]; then
         echo "Function [$cmd] failed with return code [$rc]"
         return $rc;
+      else
+        echo "[$cmd] exited successfully."
       fi
   done
 
-  echo "[$cmd] exited successfully."
   return 0;
 }
 
@@ -48,10 +48,11 @@ function runCmd() {
       if [ $rc -gt 0 ]; then
         echo "Function [$cmd] failed with return code [$rc]"
         return $rc;
+      else
+        echo "[$cmd - $entry] exited successfully."
       fi
   done
 
-  echo "[$cmd] exited successfully."
   return 0; 
 }
 
