@@ -5,7 +5,7 @@
 # author: Jason Giedymin
 # license: Apache v2
 # repo: https://github.com/Amuxbit/container-automation-lib
-# version: 1.0.0
+# version: 1.0.1
 #
 
 function debug() {
@@ -34,7 +34,8 @@ function run() {
 }
 
 #
-# Run a command in a loop feeding each entry as an arg
+# Run a single command for each entry of a user supplied list.
+# I.e. the command being cpanm, and entries being libraries
 #
 function runCmd() {
   local cmd=$1
@@ -44,6 +45,29 @@ function runCmd() {
   for entry in "${list[@]}" ; do
       # echo "Running $cmd"
       $cmd $entry
+      local rc=$?
+      if [ $rc -gt 0 ]; then
+        echo "Function [$cmd] failed with return code [$rc]"
+        return $rc;
+      else
+        echo "[$cmd - $entry] exited successfully."
+      fi
+  done
+
+  return 0; 
+}
+
+#
+# Run a command in a loop feeding each entry as an arg
+#
+function runCmdShell() {
+  local cmd=$1
+  shift
+  local list=("$@")
+  
+  for entry in "${list[@]}" ; do
+      # echo "Running: $cmd $entry"
+      shell "$cmd $entry"
       local rc=$?
       if [ $rc -gt 0 ]; then
         echo "Function [$cmd] failed with return code [$rc]"
@@ -87,9 +111,18 @@ function runCpanm() {
 }
 
 #
+# cpanm package installer from a login shell
+#
+function runCpanmShell() {
+  local packages=("$@")
+  local cmd="cpanm --notest"
+  runCmdShell "$cmd" "${packages[@]}"
+}
+
+#
 # Ubuntu apt-get updater, takes a list of packages to install.
 #
-function runUpdate() {
+function updateApt() {
   sudo apt-get update -y
 }
 
@@ -100,6 +133,18 @@ function runApt() {
   local packages=("$@")
   local cmd="sudo apt-get install -y"
   runCmd "$cmd" "${packages[@]}"
+}
+
+function cleanApt() {
+  sudo apt-get clean
+}
+
+#
+# Runs a command in a login shell
+# shell(command)
+function shell() {
+  local command=$1
+  $SHELL -ilc "$command"
 }
 
 #
