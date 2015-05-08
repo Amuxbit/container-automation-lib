@@ -5,11 +5,49 @@
 # author: Jason Giedymin
 # license: Apache v2
 # repo: https://github.com/Amuxbit/container-automation-lib
-# version: 1.0.1
+# version: 1.0.3
 #
+
+TMPDIR=${TMPDIR:-/tmp}
+LIB_VERBOSE=$([[ $1 == true ]] && echo true || echo false);
+LIB_TMP_DIR=$TMPDIR/automation-lib
+
+# Verbose messages
+function verbose() {
+  local cmd=$1
+  [[ $LIB_VERBOSE == true ]] && $cmd || return 0;
+}
 
 function debug() {
   printf "\n ---> [$@]\n"
+}
+
+# TODO: add color
+function infoMsg() {
+  printf "\n      [$@]\n"
+}
+
+# TODO: add color
+function errorMsg() {
+  printf "\n      [$@]\n"
+}
+
+#
+# Returns the checksum (via shasum) to stdout.
+# Works with directories and files.
+#
+function checksum() {
+  local file_dir=$1
+  if [ ! -e $file_dir ]; then
+    error "Cannot find specified location $file_dir"
+    return 1
+  else
+    if [ -d $file_dir ]; then
+      tar c $file_dir | shasum -p | awk '{print $1}'
+    else
+      shasum -p $file_dir | awk '{print $1}'
+    fi
+  fi;
 }
 
 #
@@ -18,17 +56,23 @@ function debug() {
 function run() {
   local cmdList=("$@")
 
-  for cmd in "${cmdList[@]}" ; do
-      debug "$cmd"
-      $cmd
-      local rc=$?
-      if [ $rc -gt 0 ]; then
+  for cmd in "${cmdList[@]}"; do
+    debug "$cmd"
+
+    if [ $(type -t $cmd) == "function" ]; then
+      if $cmd ; then
+        echo "[$cmd] exited successfully."
+      else
+        local rc=$?
         echo "Function [$cmd] failed with return code [$rc]"
         return $rc;
-      else
-        echo "[$cmd] exited successfully."
-      fi
-  done
+      fi;
+    else
+      echo "$cmd not a function!"
+      return 1
+    fi;
+
+  done;
 
   return 0;
 }
@@ -43,7 +87,6 @@ function runCmd() {
   local list=("$@")
   
   for entry in "${list[@]}" ; do
-      # echo "Running $cmd"
       $cmd $entry
       local rc=$?
       if [ $rc -gt 0 ]; then
@@ -175,3 +218,22 @@ info() {
   echo "Working directory [$(pwd)]"
   echo "Environment: $(env)"
 }
+
+#
+# Library Init
+# ------------
+#
+init() {
+  banner() {
+    verbose "echo Verbose mode: enabled"
+  }
+
+  prep() {
+    mkdir -p $LIB_TMP_DIR
+  }
+
+  local commands=(banner prep)
+  run "${commands[@]}"
+}
+
+init
