@@ -7,14 +7,13 @@
 #   Download and source this file. Libs will automatically be pulled
 #   OR
 #   Execute this script in the desired base location.
+#   OR
+#   Optionally pass in true when calling this script for verbose output:
+#     $ bash lib.sh true
 #
 
 LIB_VERBOSE=$([[ $1 == true ]] && echo true || echo false);
 
-#
-# Only runs cmd, passed in as $1, if verbose is enabled.
-# Useful for when logging is desired only in certain situations.
-#
 function verbose() {
   local cmd=$1
   [[ $LIB_VERBOSE == true ]] && $cmd
@@ -32,8 +31,9 @@ if [ ! -e ./lib ]; then
 else
   pushd lib
   verbose gitInfo
-  git pull
+  # git pull
   popd
 fi;
 
-source ./lib/core.sh;
+unset -f verbose # if in the future I want to create an verbose f(x)
+source lib/core.sh
