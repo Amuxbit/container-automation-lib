@@ -31,7 +31,7 @@ if [ ! -e ./lib ]; then
 else
   pushd lib
   verbose gitInfo
-  # git pull
+  git pull
   popd
 fi;
 
