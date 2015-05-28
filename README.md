@@ -19,6 +19,14 @@ To run the tests use:
 bash test.sh
 ```
 
+## Tips
+
+1. Use run with functions: `run fx1 fx2`
+1. Test return code of function with if directly (PRs in progress)
+1. Don't nest functions, unless you unset them. Instead flatten out and see #1 above.
+1. Don't lib-ify too much (see remote.sh as what not to do).
+
+
 ## License
 
 Apache v2
